@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const sequelize = new Sequelize(
-  process.env.DB_NAME || 'stations_management',
+  process.env.DB_NAME || 'stations',
   process.env.DB_USER || 'postgres',
   process.env.DB_PASSWORD || '123',
   {

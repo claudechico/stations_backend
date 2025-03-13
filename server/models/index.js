@@ -7,7 +7,7 @@ import Role from './Role.js';
 import RolePermission from './RolePermission.js';
 import { Country, Region, City } from './Location.js';
 
-// Location relationships
+// --- Location relationships ---
 Country.hasMany(Region, { 
   foreignKey: 'countryId',
   onDelete: 'CASCADE',
@@ -22,7 +22,7 @@ Region.hasMany(City, {
 });
 City.belongsTo(Region, { foreignKey: 'regionId' });
 
-// Company relationships
+// --- Company relationships ---
 Company.belongsTo(User, { 
   as: 'director',
   foreignKey: 'directorId',
@@ -34,8 +34,23 @@ Company.belongsTo(Country, {
   onDelete: 'RESTRICT',
   onUpdate: 'CASCADE'
 });
+Company.hasMany(Station, {
+  foreignKey: 'companyId',
+  as: 'stations'
+});
 
-// Station relationships
+// --- User relationships ---
+// Added alias 'companies' to access the companies (redirected companies) where the user is the director
+User.hasMany(Company, {
+  foreignKey: 'directorId',
+  as: 'companies'
+});
+User.hasMany(Station, {
+  foreignKey: 'managerId',
+  as: 'managedStations'
+});
+
+// --- Station relationships ---
 Station.belongsTo(Company, { 
   foreignKey: 'companyId',
   onDelete: 'CASCADE',
@@ -53,11 +68,23 @@ Station.belongsTo(City, {
   onUpdate: 'CASCADE'
 });
 
-// Role relationships
+// --- City relationships ---
+City.hasMany(Station, {
+  foreignKey: 'cityId',
+  as: 'stations'
+});
+City.belongsTo(Region, {
+  foreignKey: 'regionId'
+});
+Region.belongsTo(Country, {
+  foreignKey: 'countryId'
+});
+
+// --- Role relationships ---
 User.belongsTo(Role, { foreignKey: 'roleId' });
 Role.hasMany(User, { foreignKey: 'roleId' });
 
-// Permission relationships
+// --- Permission relationships ---
 Role.belongsToMany(Permission, {
   through: RolePermission,
   foreignKey: 'roleId',

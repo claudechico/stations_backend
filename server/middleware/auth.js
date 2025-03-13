@@ -8,8 +8,10 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 export const authenticateToken = async (req, res, next) => {
   try {
+    // Check for token in Authorization header or query parameter
     const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.split(' ')[1];
+    const queryToken = req.query.token;
+    const token = (authHeader && authHeader.split(' ')[1]) || queryToken;
 
     if (!token) {
       return res.status(401).json({ error: 'No token provided' });

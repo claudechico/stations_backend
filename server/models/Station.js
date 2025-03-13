@@ -7,13 +7,25 @@ const Station = sequelize.define('Station', {
     autoIncrement: true,
     primaryKey: true
   },
+  name: {
+    type: DataTypes.STRING(255),
+    allowNull: false
+  },
   companyId: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    references: {
+      model: 'Companies',
+      key: 'id'
+    }
   },
   managerId: {
     type: DataTypes.INTEGER,
-    allowNull: true
+    allowNull: true,
+    references: {
+      model: 'Users',
+      key: 'id'
+    }
   },
   tin: {
     type: DataTypes.STRING(255),
@@ -35,7 +47,11 @@ const Station = sequelize.define('Station', {
   },
   cityId: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    references: {
+      model: 'Cities',
+      key: 'id'
+    }
   }
 }, {
   tableName: 'Stations',

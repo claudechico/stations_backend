@@ -20,20 +20,38 @@ const Company = sequelize.define('Company', {
       isEmail: true
     }
   },
-  ogo: {
-    type: DataTypes.STRING(1000),
+  logo: {
+    type: DataTypes.BLOB,
     allowNull: true,
-    validate: {
-      isUrl: true
+    get() {
+      const rawValue = this.getDataValue('logo');
+      return rawValue ? Buffer.from(rawValue) : null;
+    },
+    set(value) {
+      if (value) {
+        this.setDataValue('logo', Buffer.from(value));
+      }
     }
+  },
+  logoType: {
+    type: DataTypes.STRING(50),
+    allowNull: true
   },
   countryId: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    references: {
+      model: 'Countries',
+      key: 'id'
+    }
   },
   directorId: {
     type: DataTypes.INTEGER,
-    allowNull: true
+    allowNull: true,
+    references: {
+      model: 'Users',
+      key: 'id'
+    }
   }
 }, {
   tableName: 'Companies',

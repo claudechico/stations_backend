@@ -4,7 +4,8 @@ import {
   getStationById, 
   createStation, 
   updateStation, 
-  deleteStation 
+  deleteStation,
+  getStationsByCompanyId  // New controller function
 } from '../controllers/StationController.js';
 import { authenticateToken, authorizePermission } from '../middleware/auth.js';
 
@@ -12,6 +13,9 @@ const router = express.Router();
 
 // Apply authentication middleware to all routes
 router.use(authenticateToken);
+
+// New route: Get stations by company ID (requires stations:read permission)
+router.get('/company/:companyId', authorizePermission('stations', 'read'), getStationsByCompanyId);
 
 // Get all stations (requires stations:read permission)
 router.get('/', authorizePermission('stations', 'read'), getAllStations);

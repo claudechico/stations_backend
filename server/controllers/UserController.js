@@ -6,6 +6,7 @@ import Role from '../models/Role.js';
 import Permission from '../models/permission.js';
 import UserPermission from '../models/userPermission.js';
 import { Op } from 'sequelize';
+import Company from '../models/Company.js';
 
 
 export const register = async (req, res) => {
@@ -19,6 +20,7 @@ export const register = async (req, res) => {
   }
 };
 
+
 export const login = async (req, res) => {
   try {
     console.log("Incoming request:", req.body);
@@ -29,17 +31,22 @@ export const login = async (req, res) => {
       return res.status(400).json({ error: 'Username and password are required' });
     }
 
-    // Fetch user with role and permissions
+    // Fetch user with role, permissions, and associated companies
     const user = await User.findOne({
       where: { username },
       include: [
         {
           model: Role,
           attributes: ['id', 'name', 'description']
+        },
+        {
+          model: Company, // Include the companies associated with the user
+          as: 'companies',
+          attributes: ['id', 'name', 'email', 'logo', 'logoType'] // Updated attributes to match the Company model
         }
       ]
     });
-    
+
     if (!user) {
       console.log('User not found:', username);
       return res.status(401).json({ error: 'Invalid credentials' });
@@ -74,7 +81,7 @@ export const login = async (req, res) => {
 
     // Create a map to store the final permissions
     const permissionsMap = new Map();
-    
+
     // Add role permissions first
     rolePermissions.forEach(permission => {
       permissionsMap.set(permission.id, {
@@ -85,7 +92,7 @@ export const login = async (req, res) => {
         description: permission.description
       });
     });
-    
+
     // Add or override with user-specific permissions
     userPermissions.forEach(permission => {
       if (permission.Users[0].UserPermission.override) {
@@ -116,8 +123,8 @@ export const login = async (req, res) => {
     console.log('Login successful for:', username);
     console.log('Role:', user.Role.name);
     console.log('Permissions count:', finalPermissions.length);
-    
-    // Return user data with permissions
+
+    // Return user data with permissions and associated companies
     res.json({
       token,
       user: {
@@ -130,7 +137,8 @@ export const login = async (req, res) => {
           name: user.Role.name,
           description: user.Role.description
         },
-        permissions: finalPermissions
+        permissions: finalPermissions,
+        companies: user.companies || [] // Use the alias "companies"
       }
     });
   } catch (error) {
@@ -144,13 +152,18 @@ export const getUsers = async (req, res) => {
     const users = await User.findAll({
       include: [
         {
-          model:Role,
+          model: Role,
           attributes: ['id', 'name', 'description']
         },
         {
           model: Permission,
           through: { attributes: ['override'] },
           attributes: ['id', 'name', 'resource', 'action', 'description']
+        },
+        {
+          model: Company,
+          as: 'companies',
+          attributes: ['id', 'name', 'email', 'logo', 'logoType']
         }
       ]
     });
@@ -160,6 +173,7 @@ export const getUsers = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 export const getCurrentUser = async (req, res) => {
   try {
@@ -178,6 +192,11 @@ export const getCurrentUser = async (req, res) => {
           model: Permission,
           through: { attributes: ['override'] },
           attributes: ['id', 'name', 'resource', 'action', 'description']
+        },
+        {
+          model: Company,
+          as: 'companies',
+          attributes: ['id', 'name', 'email', 'logo', 'logoType']
         }
       ]
     });
@@ -209,6 +228,7 @@ export const getCurrentUser = async (req, res) => {
         name: user.role.name,
         description: user.role.description
       },
+      companies: user.companies, // include companies in current user data
       permissions: permissions
     };
 
