@@ -125,8 +125,9 @@ async function initializeDatabase() {
 initializeDatabase()
   .then(() => {
     const PORT = process.env.PORT || 5000;
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
+    const HOST = '192.168.100.34';
+    app.listen(PORT, HOST, () => {
+      console.log(`Server running on http://${HOST}:${PORT}`);
     });
   })
   .catch(error => {

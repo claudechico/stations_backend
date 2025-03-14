@@ -1,4 +1,5 @@
 import { Station, Company, User, City, Region, Country } from '../models/index.js';
+import { Op } from 'sequelize';
 
 export const getAllStations = async (req, res) => {
   try {
@@ -166,7 +167,7 @@ export const updateStation = async (req, res) => {
       const existingManagerStation = await Station.findOne({ 
         where: { 
           managerId,
-          id: { [Op.ne]: id } // Exclude current station
+          id: { [Op.ne]: id } // Now Op will be defined
         } 
       });
       if (existingManagerStation) {
